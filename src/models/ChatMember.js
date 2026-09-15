@@ -1,0 +1,1 @@
+// ChatMember modeli — keyinroq to'ldiriladi

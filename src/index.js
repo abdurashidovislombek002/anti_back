@@ -1,0 +1,1 @@
+// Loyihaning kirish nuqtasi — keyinroq to'ldiriladi

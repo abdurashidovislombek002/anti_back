@@ -1,0 +1,1 @@
+// Chat modeli — keyinroq to'ldiriladi
