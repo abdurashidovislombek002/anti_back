@@ -60,8 +60,8 @@ async function start() {
     await sequelize.authenticate();
     console.log('PostgreSQL bilan ulanish muvaffaqiyatli');
 
-    await sequelize.sync();
-    console.log('Database sinxronlandi (jadval yaratildi)');
+    await sequelize.sync({ alter: true });
+    console.log('Database sinxronlandi (jadval yangilandi)');
 
     server.listen(PORT, () => {
       console.log(`Antigram server ${PORT}-portda ishga tushdi`);
@@ -72,4 +72,4 @@ async function start() {
   }
 }
 
-start();
+start();git add .
