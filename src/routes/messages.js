@@ -1,5 +1,5 @@
 // Messages routelari
-const router = require('express').Router();
+const router = require('express').Router({ mergeParams: true });
 const auth = require('../middleware/auth');
 const { getMessages, createMessage } = require('../controllers/messageController');
 
