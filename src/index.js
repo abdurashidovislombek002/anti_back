@@ -15,7 +15,24 @@ const chatRoutes = require('./routes/chats');
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
+// Ruxsat etilgan manzillar ro'yxati (local development + production)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://anti-front.onrender.com',
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Postman kabi vositalar uchun (origin bo'lmasa) ruxsat berish
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS siyosati tomonidan bloklandi'));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 
 // Route'lar
