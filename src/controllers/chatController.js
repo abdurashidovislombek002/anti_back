@@ -62,24 +62,34 @@ exports.getChats = async (req, res, next) => {
 // POST /api/chats
 exports.createChat = async (req, res, next) => {
   try {
-    const userId = Number(req.body.userId);
+    let { userId, username } = req.body;
+    let otherUser;
 
-    if (!userId) {
-      return res.status(400).json({ error: 'userId kiritilishi shart' });
+    if (username) {
+      // Frontend username orqali yuborgan bo'lsa, shu orqali foydalanuvchini topamiz
+      otherUser = await User.findOne({ where: { username: username.trim() } });
+      if (!otherUser) {
+        return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
+      }
+    } else if (userId) {
+      otherUser = await User.findByPk(Number(userId));
+      if (!otherUser) {
+        return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
+      }
+    } else {
+      return res.status(400).json({ error: 'username yoki userId kiritilishi shart' });
     }
-    if (userId === req.user.id) {
+
+    if (otherUser.id === req.user.id) {
       return res.status(400).json({ error: 'O\'zingiz bilan chat yaratib bo\'lmaydi' });
     }
 
-    const otherUser = await User.findByPk(userId);
-    if (!otherUser) {
-      return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
-    }
+    const otherUserId = otherUser.id;
 
     // Mavjud private chatni qidirish
     const [myMemberships, otherMemberships] = await Promise.all([
       ChatMember.findAll({ where: { user_id: req.user.id }, attributes: ['chat_id'] }),
-      ChatMember.findAll({ where: { user_id: userId }, attributes: ['chat_id'] }),
+      ChatMember.findAll({ where: { user_id: otherUserId }, attributes: ['chat_id'] }),
     ]);
 
     const mySet = new Set(myMemberships.map((m) => m.chat_id));
@@ -101,7 +111,7 @@ exports.createChat = async (req, res, next) => {
       await ChatMember.bulkCreate(
         [
           { chat_id: newChat.id, user_id: req.user.id },
-          { chat_id: newChat.id, user_id: userId },
+          { chat_id: newChat.id, user_id: otherUserId },
         ],
         { transaction: t }
       );
